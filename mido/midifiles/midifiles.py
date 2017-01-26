@@ -162,7 +162,7 @@ def read_sysex(infile, delta, error_mode):
     if data and data[-1] == 0xf7:
         data = data[:-1]
 
-    data_bytes = _clip_data_bytes(data_bytes, error_mode)
+    data = _clip_data_bytes(data, error_mode)
 
     return Message('sysex', data=data, time=delta)
 
