@@ -41,19 +41,7 @@ def print_byte(byte, pos=0):
     print('  {:06x}: {:02x}  {}'.format(pos, byte, char))
 
 
-class FileWrapper(object):
-    def __init__(self, file, error_mode='raise'):
-        self.file = file
-
-    def read(self, size):
-        return self.file.read(size)
-
-    def tell(self):
-        return self.file.tell()
-
-
-
-class DebugFileWrapper(FileWrapper):
+class DebugFileWrapper(object):
     def __init__(self, file):
         self.file = file
 
