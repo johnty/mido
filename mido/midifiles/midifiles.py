@@ -25,15 +25,12 @@ from ..messages import Message, SPEC_BY_STATUS
 from .meta import MetaMessage, build_meta_message, meta_charset
 from .meta import MetaSpec, add_meta_spec, encode_variable_int
 from .tracks import MidiTrack, merge_tracks, fix_end_of_track
+from ..exceptions import MidiParseError
 
 # The default tempo is 120 BPM.
 # (500000 microseconds per beat (quarter note).)
 DEFAULT_TEMPO = 500000
 DEFAULT_TICKS_PER_BEAT = 480
-
-
-class MidiFileError(IOError):
-    pass
 
 
 def print_byte(byte, pos=0):
@@ -90,7 +87,7 @@ def _dbg(text=''):
 
 def _handle_error(error_msg, error_mode):
     if error_mode == 'raise':
-        raise MidiFileError(error_msg)
+        raise MidiParseError(error_msg)
     elif error_mode == 'warn':
         warnings.warn(error_msg)
     elif error_mode == 'debug':
@@ -104,7 +101,7 @@ def _handle_error(error_msg, error_mode):
 def _clip_data_bytes(data_bytes, error_mode):
     """Clip data byte to 0..127.
 
-    Raises MidiFileError if error_mode =='raise'.
+    Raises MidiParseError if error_mode =='raise'.
     """
 
     clipped_bytes = []

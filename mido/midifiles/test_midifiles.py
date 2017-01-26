@@ -1,7 +1,8 @@
 import io
 from pytest import raises
 from ..messages import Message
-from .midifiles import MidiFile, MidiFileError
+from .midifiles import MidiFile
+from ..exceptions import MidiParseError
 
 HEADER_ONE_TRACK = """
 4d 54 68 64  # MThd
@@ -57,7 +58,7 @@ def test_empty_file():
    
 
 def test_eof_in_track():
-    with raises(MidiFileError):
+    with raises(MidiParseError):
         read_file(HEADER_ONE_TRACK + """
         4d 54 72 6b  # MTrk
         00 00 00 01  # Chunk size
@@ -67,7 +68,7 @@ def test_eof_in_track():
 
 def test_invalid_data_byte():
     # Todo: should this raise IOError?
-    with raises(MidiFileError):
+    with raises(MidiParseError):
         read_file(HEADER_ONE_TRACK + """
         4d 54 72 6b  # MTrk
         00 00 00 04  # Chunk size
@@ -85,7 +86,7 @@ def test_ignore_track_eof():
 
 def test_ignore_invalid_data_byte():
     # Todo: should this raise IOError?
-    with raises(MidiFileError):
+    with raises(MidiParseError):
         read_file(HEADER_ONE_TRACK + """
         4d 54 72 6b  # MTrk
         00 00 00 04  # Chunk size

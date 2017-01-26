@@ -1,0 +1,2 @@
+class MidiParseError(Exception):
+    pass
