@@ -7,7 +7,18 @@ import sys
 import time
 import random
 import mido
+import thread
 from mido import Message
+
+def proc_input(L):
+   inkey = raw_input()
+   print( 'input' )
+   if inkey == '1':
+      period-= 0.02
+   if inkey == '2':
+      period+= 0.02
+   L.append(inkey)
+   
 
 if len(sys.argv) > 1:
     portname = sys.argv[1]
@@ -15,7 +26,9 @@ else:
     portname = None  # Use default port
 
 # A pentatonic scale
-notes = [60, 62, 63, 67, 69, 72]
+notes = [60, 62, 64, 67, 69, 72]
+
+period = 0.1
 
 def setTone():
    #bank 0x2000 (keyboards etc)
@@ -26,6 +39,8 @@ def setTone():
     pgchange = Message('program_change', channel=0, program=0)
     port.send(pgchange)
 
+L = []
+thread.start_new_thread(proc_input, (L,))
 try:
     with mido.open_output(portname, autoreset=True) as port:
         print('Using {}'.format(port))
@@ -36,12 +51,16 @@ try:
             on = Message('note_on', note=note)
             print('Sending {}'.format(on))
             port.send(on)
-            time.sleep(0.05)
+            time.sleep(period)
 
             off = Message('note_off', note=note)
             print('Sending {}'.format(off))
             port.send(off)
             time.sleep(0.1)
+
+            if L:
+                print (L[0], L[0])
+                del L[0]
 except KeyboardInterrupt:
     pass
 
