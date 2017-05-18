@@ -21,7 +21,19 @@ def mod_handler(addr, tags, stuff, source):
     global note_offset
     note_offset = stuff[0]
     print("offset = ", note_offset) 
-    
+
+def key_handler(addr, tags, stuff, source):
+    print("key: ", stuff)
+    global notes
+    if (stuff[0]== 'major'):
+        notes = [60, 62, 64, 65, 67, 69]
+        print("MAJOR")
+    elif (stuff[0] == 'penta'):
+        notes = [60, 62, 64, 67, 69, 72]
+        print("PENTA")
+    else:
+        notes = [60, 62, 63, 65, 67, 68]
+        print("MINOR")
 
 def message_handler(addr, tags, stuff, source):
     print("message: ", addr)  
@@ -42,6 +54,7 @@ notes = [60, 62, 64, 67, 69, 72]
 server.addMsgHandler("/test", message_handler)
 server.addMsgHandler("/tempo", tempo_handler)
 server.addMsgHandler("/mod", mod_handler)
+server.addMsgHandler("/key", key_handler)
 
 print( "Registered Callback-functions:")
 for addr in server.getOSCAddressSpace():
