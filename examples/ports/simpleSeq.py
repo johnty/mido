@@ -12,9 +12,27 @@ import threading
 from OSC import OSCServer
 from mido import Message
 
+#constants
+ARP_UP = 1
+ARP_DOWN = 2
+ARP_RAND = 3
+
+#globals
 server = OSCServer( ("0.0.0.0", 7002) )
 period = 1.0
 note_offset = 0
+arp_type = ARP_RAND
+curr_note = 0
+
+def arp_handler(addr, tags, stuff, source):
+    global arp_type
+    print("arp: ", stuff)
+    if stuff[0] == 'up':
+        arp_type = ARP_UP
+    elif stuff[0] == 'down':
+        arp_type = ARP_DOWN
+    elif stuff[0] == 'rand':
+        arp_type = ARP_RAND
 
 def mod_handler(addr, tags, stuff, source):
     print("mod: ", stuff, " len=",len(stuff))
@@ -43,6 +61,21 @@ def tempo_handler(addr, tags, stuff, source):
     print("tempo: ", stuff[0])
     period = stuff[0]
 
+def get_next_note():
+    global arp_type
+    global curr_note
+    if (arp_type == ARP_RAND):
+        return random.choice(notes) + note_offset
+    elif (arp_type == ARP_UP):
+        curr_note =curr_note + 1;
+        curr_note = curr_note%len(notes)
+        return notes[curr_note] + note_offset
+    elif (arp_type == ARP_DOWN):
+        curr_note = curr_note - 1;
+        curr_note = curr_note%len(notes)
+        return notes[curr_note] + note_offset
+
+
 if len(sys.argv) > 1:
     portname = sys.argv[1]
 else:
@@ -55,6 +88,7 @@ server.addMsgHandler("/test", message_handler)
 server.addMsgHandler("/tempo", tempo_handler)
 server.addMsgHandler("/mod", mod_handler)
 server.addMsgHandler("/key", key_handler)
+server.addMsgHandler("/arp", arp_handler)
 
 print( "Registered Callback-functions:")
 for addr in server.getOSCAddressSpace():
@@ -77,8 +111,7 @@ try:
         print('Using {}'.format(port))
         setTone()
         while True:
-            note = random.choice(notes) + note_offset
-
+            note = get_next_note()
             on = Message('note_on', note=note)
             print('Sending {}'.format(on), 'period = ', period)
             port.send(on)
