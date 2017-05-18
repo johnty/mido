@@ -14,6 +14,14 @@ from mido import Message
 
 server = OSCServer( ("0.0.0.0", 7002) )
 period = 1.0
+note_offset = 0
+
+def mod_handler(addr, tags, stuff, source):
+    print("mod: ", stuff, " len=",len(stuff))
+    global note_offset
+    note_offset = stuff[0]
+    print("offset = ", note_offset) 
+    
 
 def message_handler(addr, tags, stuff, source):
     print("message: ", addr)  
@@ -33,6 +41,8 @@ notes = [60, 62, 64, 67, 69, 72]
 
 server.addMsgHandler("/test", message_handler)
 server.addMsgHandler("/tempo", tempo_handler)
+server.addMsgHandler("/mod", mod_handler)
+
 print( "Registered Callback-functions:")
 for addr in server.getOSCAddressSpace():
     print( addr)
@@ -54,7 +64,7 @@ try:
         print('Using {}'.format(port))
         setTone()
         while True:
-            note = random.choice(notes)
+            note = random.choice(notes) + note_offset
 
             on = Message('note_on', note=note)
             print('Sending {}'.format(on), 'period = ', period)
