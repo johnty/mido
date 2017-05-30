@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 """
+Based on midi output example from mido:
 Send random notes to the output port.
+
+added:
+
+- OSC hooks for adjusting parameters
+- major/minor/penta scale modes
+- tempo (note-duration)
+- upward/downward/random note progression
+
 """
 from __future__ import print_function
 import sys
